@@ -9,6 +9,6 @@ RUN npm install
 COPY index.html ./
 COPY src ./src
 
-EXPOSE 5173
+XPOSE 3000
 
-CMD ["npm", "start", "--", "--host", "0.0.0.0"]
+CMD ["npm", "start", "--", "--host", "0.0.0.0", "--port", "3000"]
