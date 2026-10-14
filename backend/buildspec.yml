@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/microservices-backend
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+      - IMAGE_TAG=latest
+
+  build:
+    commands:
+      - echo Building backend Docker image
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG backend
+
+  post_build:
+    commands:
+      - echo Pushing backend Docker image to ECR
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - printf '[{"name":"backend-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
